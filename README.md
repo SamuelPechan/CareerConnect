@@ -15,7 +15,7 @@ database/     Database and migration notes
 
 ## Phase 1 setup
 
-Phase 1 established the project foundation. Phase 2 adds JWT-based authentication, user profiles, onboarding, and user-owned resume references.
+Phase 1 established the project foundation. Phase 2 adds JWT-based authentication, user profiles, onboarding, and user-owned resume references. Phase 3 adds job opportunities, applications, safe filtering/sorting, status tracking, and dashboard basics.
 
 ### Prerequisites
 
@@ -83,6 +83,20 @@ The backend commands require Python 3.12+ and installed dependencies.
 - `PATCH /api/v1/profile` — update onboarding/profile information
 - `GET /api/v1/profile/resumes` — list the user’s resume references
 - `POST /api/v1/profile/resumes` — save a user-provided resume reference
+
+### Opportunities, applications, and dashboard API
+
+- `GET /api/v1/opportunities` — list opportunities with safe status/source/company filters and sorting
+- `POST /api/v1/opportunities` — save a job opportunity
+- `GET /api/v1/opportunities/{id}` — view one opportunity
+- `PATCH /api/v1/opportunities/{id}` — update an opportunity
+- `DELETE /api/v1/opportunities/{id}` — delete an opportunity
+- `POST /api/v1/opportunities/{id}/apply` — convert an opportunity into an application
+- `GET /api/v1/applications` — list applications with safe status/source/company filters and sorting
+- `GET /api/v1/applications/{id}` — view one application
+- `PATCH /api/v1/applications/{id}` — update application status, notes, date, or resume reference
+- `DELETE /api/v1/applications/{id}` — remove an application while keeping the opportunity
+- `GET /api/v1/dashboard/summary` — return opportunity and application pipeline counts
 
 All profile and resume endpoints require `Authorization: Bearer <token>`. User records are isolated by the authenticated user ID. Phase 2 stores resume metadata and an optional permitted URL; binary storage and parsing will be added later with explicit user review.
 

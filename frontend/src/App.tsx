@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import AuthPage from './pages/AuthPage'
+import ApplicationsPage from './pages/ApplicationsPage'
 import DashboardPage from './pages/DashboardPage'
 import OnboardingPage from './pages/OnboardingPage'
 
@@ -23,7 +24,8 @@ function AppContent() {
   if (isLoading) return <main className="shell"><p>Loading your workspace…</p></main>
   if (!user) return <AuthPage mode={path === '/register' ? 'register' : 'login'} onNavigate={navigate} />
   if (!profile?.onboarding_completed) return <OnboardingPage onComplete={refreshProfile} />
-  return <DashboardPage />
+  if (path === '/applications') return <ApplicationsPage onNavigate={navigate} />
+  return <DashboardPage onNavigate={navigate} />
 }
 
 function App() {
