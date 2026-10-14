@@ -49,7 +49,7 @@ def get_owned_application(application_id: UUID, user_id: UUID, db: DbSession) ->
 def list_opportunities(
     user: CurrentUser,
     db: DbSession,
-    status_filter: OpportunityStatus | None = Query(default=None, alias="status"),
+    status_filter: OpportunityStatus | None = Query(default=None, alias="status"),  # noqa: B008
     source_platform: str | None = Query(default=None, max_length=100),
     company: str | None = Query(default=None, max_length=250),
     sort_by: SortField = "date_saved",
@@ -139,7 +139,7 @@ def convert_to_application(opportunity_id: UUID, user: CurrentUser, db: DbSessio
 def list_applications(
     user: CurrentUser,
     db: DbSession,
-    status_filter: ApplicationStatus | None = Query(default=None, alias="status"),
+    status_filter: ApplicationStatus | None = Query(default=None, alias="status"),  # noqa: B008
     source_platform: str | None = Query(default=None, max_length=100),
     company: str | None = Query(default=None, max_length=250),
     sort_by: Literal["application_date", "updated_at", "company_name"] = "application_date",
