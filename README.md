@@ -15,7 +15,7 @@ database/     Database and migration notes
 
 ## Phase 1 setup
 
-Phase 1 establishes the project foundation. Domain features such as authentication, applications, contacts, and reminders are intentionally added in later phases.
+Phase 1 established the project foundation. Phase 2 adds JWT-based authentication, user profiles, onboarding, and user-owned resume references.
 
 ### Prerequisites
 
@@ -72,6 +72,19 @@ pytest
 ```
 
 The backend commands require Python 3.12+ and installed dependencies.
+
+### Authentication and onboarding API
+
+- `POST /api/v1/auth/register` — create an account and receive a bearer token
+- `POST /api/v1/auth/login` — authenticate with email and password
+- `GET /api/v1/auth/me` — return the current authenticated user
+- `POST /api/v1/auth/logout` — client logout endpoint; the short-lived token is removed client-side
+- `GET /api/v1/profile` — return the authenticated user’s profile
+- `PATCH /api/v1/profile` — update onboarding/profile information
+- `GET /api/v1/profile/resumes` — list the user’s resume references
+- `POST /api/v1/profile/resumes` — save a user-provided resume reference
+
+All profile and resume endpoints require `Authorization: Bearer <token>`. User records are isolated by the authenticated user ID. Phase 2 stores resume metadata and an optional permitted URL; binary storage and parsing will be added later with explicit user review.
 
 ## Architecture direction
 
