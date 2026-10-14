@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: careerconnect-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: careerconnect
+      POSTGRES_USER: careerconnect
+      POSTGRES_PASSWORD: careerconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - careerconnect-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerconnect -d careerconnect"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  careerconnect-postgres-data:
