@@ -23,6 +23,7 @@ class ApplicationSummary(BaseModel):
 class OpportunityCreate(BaseModel):
     title: str = Field(min_length=1, max_length=250)
     company_name: str = Field(min_length=1, max_length=250)
+    company_id: UUID | None = None
     location: str | None = Field(default=None, max_length=250)
     job_url: AnyHttpUrl | None = None
     source_platform: str | None = Field(default=None, max_length=100)
@@ -35,6 +36,7 @@ class OpportunityCreate(BaseModel):
 class OpportunityUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=250)
     company_name: str | None = Field(default=None, min_length=1, max_length=250)
+    company_id: UUID | None = None
     location: str | None = Field(default=None, max_length=250)
     job_url: AnyHttpUrl | None = None
     source_platform: str | None = Field(default=None, max_length=100)
@@ -49,6 +51,7 @@ class OpportunityResponse(BaseModel):
 
     id: UUID
     user_id: UUID
+    company_id: UUID | None
     title: str
     company_name: str
     location: str | None

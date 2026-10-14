@@ -13,9 +13,9 @@ database/     Database and migration notes
 .github/      CI workflows
 ```
 
-## Phase 1 setup
+## Current implementation
 
-Phase 1 established the project foundation. Phase 2 adds JWT-based authentication, user profiles, onboarding, and user-owned resume references. Phase 3 adds job opportunities, applications, safe filtering/sorting, status tracking, and dashboard basics.
+Phases 1–3 established the project foundation, JWT authentication, profiles, onboarding, job opportunities, applications, safe filtering/sorting, status tracking, and dashboard basics. Phase 4 adds user-owned companies and a user-controlled Find Contacts workflow that generates search criteria and external links without scraping or automatic outreach.
 
 ### Prerequisites
 
@@ -97,6 +97,13 @@ The backend commands require Python 3.12+ and installed dependencies.
 - `PATCH /api/v1/applications/{id}` — update application status, notes, date, or resume reference
 - `DELETE /api/v1/applications/{id}` — remove an application while keeping the opportunity
 - `GET /api/v1/dashboard/summary` — return opportunity and application pipeline counts
+- `GET /api/v1/companies` — list the user’s saved companies
+- `POST /api/v1/companies` — create or reuse a user-owned company record
+- `GET /api/v1/companies/{id}` — view one company
+- `GET /api/v1/companies/{id}/opportunities` — list opportunities for a company
+- `POST /api/v1/discovery/opportunities/{id}/find-contacts` — generate a user-reviewed contact search plan
+- `GET /api/v1/discovery/searches/{id}` — retrieve a saved search plan
+- `PATCH /api/v1/discovery/links/{id}` — mark an external search link reviewed or unreviewed
 
 All profile and resume endpoints require `Authorization: Bearer <token>`. User records are isolated by the authenticated user ID. Phase 2 stores resume metadata and an optional permitted URL; binary storage and parsing will be added later with explicit user review.
 
@@ -110,10 +117,10 @@ All profile and resume endpoints require `Authorization: Bearer <token>`. User r
 
 ## Planned phases
 
-1. Foundation and local development setup
-2. Authentication, profiles, and onboarding
-3. Opportunities, applications, and dashboard basics
-4. Companies and Find Contacts workflow
+1. Foundation and local development setup — complete
+2. Authentication, profiles, and onboarding — complete
+3. Opportunities, applications, and dashboard basics — complete
+4. Companies and Find Contacts workflow — complete
 5. User-controlled contact discovery
 6. Contacts, interactions, and reminders
 7. Reviewed message drafts
@@ -124,4 +131,4 @@ All profile and resume endpoints require `Authorization: Bearer <token>`. User r
 
 ## Known limitations
 
-The repository currently contains only the Phase 1 foundation. Production deployment, authentication, domain data, integrations, and analytics are not yet implemented. The optional browser extension will remain separate from the core application.
+Production deployment, external provider integrations, contact persistence, messaging, and analytics are not yet implemented. The optional browser extension will remain separate from the core application.

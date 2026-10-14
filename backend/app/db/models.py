@@ -37,6 +37,12 @@ class User(TimestampMixin, Base):
     applications: Mapped[list["Application"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    companies: Mapped[list["Company"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    discovery_searches: Mapped[list["ContactDiscoverySearch"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class UserProfile(TimestampMixin, Base):
@@ -75,6 +81,25 @@ class Resume(TimestampMixin, Base):
     user: Mapped[User] = relationship(back_populates="resumes")
 
 
+class Company(TimestampMixin, Base):
+    __tablename__ = "companies"
+    __table_args__ = (Index("ix_companies_user_name", "user_id", "name"),)
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(250), nullable=False)
+    domain: Mapped[str | None] = mapped_column(String(250))
+    notes: Mapped[str | None] = mapped_column(Text)
+
+    user: Mapped[User] = relationship(back_populates="companies")
+    opportunities: Mapped[list["JobOpportunity"]] = relationship(back_populates="company")
+    discovery_searches: Mapped[list["ContactDiscoverySearch"]] = relationship(
+        back_populates="company"
+    )
+
+
 class JobOpportunity(TimestampMixin, Base):
     __tablename__ = "job_opportunities"
     __table_args__ = (
@@ -87,6 +112,9 @@ class JobOpportunity(TimestampMixin, Base):
     user_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
+    company_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="SET NULL")
+    )
     title: Mapped[str] = mapped_column(String(250), nullable=False)
     company_name: Mapped[str] = mapped_column(String(250), nullable=False)
     location: Mapped[str | None] = mapped_column(String(250))
@@ -98,6 +126,7 @@ class JobOpportunity(TimestampMixin, Base):
     status: Mapped[str] = mapped_column(String(32), default="saved", nullable=False)
 
     user: Mapped[User] = relationship(back_populates="opportunities")
+    company: Mapped[Company | None] = relationship(back_populates="opportunities")
     application: Mapped["Application | None"] = relationship(
         back_populates="opportunity", cascade="all, delete-orphan", uselist=False
     )
@@ -130,3 +159,46 @@ class Application(TimestampMixin, Base):
     user: Mapped[User] = relationship(back_populates="applications")
     opportunity: Mapped[JobOpportunity] = relationship(back_populates="application")
     resume: Mapped[Resume | None] = relationship()
+
+
+class ContactDiscoverySearch(TimestampMixin, Base):
+    __tablename__ = "contact_discovery_searches"
+    __table_args__ = (Index("ix_discovery_searches_user_created", "user_id", "created_at"),)
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    opportunity_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("job_opportunities.id", ondelete="CASCADE"), nullable=False
+    )
+    company_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("companies.id", ondelete="SET NULL")
+    )
+    criteria: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict, nullable=False)
+    relationship_categories: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
+    instructions: Mapped[str] = mapped_column(Text, nullable=False)
+
+    user: Mapped[User] = relationship(back_populates="discovery_searches")
+    opportunity: Mapped[JobOpportunity] = relationship()
+    company: Mapped[Company | None] = relationship(back_populates="discovery_searches")
+    links: Mapped[list["ContactDiscoveryLink"]] = relationship(
+        back_populates="search", cascade="all, delete-orphan"
+    )
+
+
+class ContactDiscoveryLink(TimestampMixin, Base):
+    __tablename__ = "contact_discovery_links"
+    __table_args__ = (Index("ix_discovery_links_search_platform", "search_id", "platform"),)
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    search_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("contact_discovery_searches.id", ondelete="CASCADE"), nullable=False
+    )
+    platform: Mapped[str] = mapped_column(String(100), nullable=False)
+    search_url: Mapped[str] = mapped_column(Text, nullable=False)
+    query: Mapped[str] = mapped_column(Text, nullable=False)
+    relationship_reason: Mapped[str] = mapped_column(Text, nullable=False)
+    reviewed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    search: Mapped[ContactDiscoverySearch] = relationship(back_populates="links")

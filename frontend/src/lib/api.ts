@@ -40,6 +40,7 @@ export type ResumeCreate = {
 export type Opportunity = {
   id: string
   user_id: string
+  company_id: string | null
   title: string
   company_name: string
   location: string | null
@@ -79,6 +80,31 @@ export type OpportunityCreate = {
   description?: string
   notes?: string
   status?: 'saved' | 'planning_to_apply'
+}
+
+export type DiscoveryLink = {
+  id: string
+  search_id: string
+  platform: string
+  search_url: string
+  query: string
+  relationship_reason: string
+  reviewed: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type DiscoverySearch = {
+  id: string
+  user_id: string
+  opportunity_id: string
+  company_id: string | null
+  criteria: Record<string, unknown>
+  relationship_categories: string[]
+  instructions: string
+  links: DiscoveryLink[]
+  created_at: string
+  updated_at: string
 }
 
 export type DashboardSummary = {
@@ -132,4 +158,8 @@ export const api = {
     request<Application[]>(`/applications?${params.toString()}`, {}, token),
   updateApplication: (token: string, id: string, application: { status?: string; notes?: string }) =>
     request<Application>(`/applications/${id}`, { method: 'PATCH', body: JSON.stringify(application) }, token),
+  findContacts: (token: string, opportunityId: string) =>
+    request<DiscoverySearch>(`/discovery/opportunities/${opportunityId}/find-contacts`, { method: 'POST' }, token),
+  reviewDiscoveryLink: (token: string, linkId: string, reviewed: boolean) =>
+    request<DiscoveryLink>(`/discovery/links/${linkId}`, { method: 'PATCH', body: JSON.stringify({ reviewed }) }, token),
 }

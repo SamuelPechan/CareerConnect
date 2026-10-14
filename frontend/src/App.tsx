@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext'
 import AuthPage from './pages/AuthPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import DashboardPage from './pages/DashboardPage'
+import FindContactsPage from './pages/FindContactsPage'
 import OnboardingPage from './pages/OnboardingPage'
 
 function AppContent() {
@@ -24,6 +25,9 @@ function AppContent() {
   if (isLoading) return <main className="shell"><p>Loading your workspace…</p></main>
   if (!user) return <AuthPage mode={path === '/register' ? 'register' : 'login'} onNavigate={navigate} />
   if (!profile?.onboarding_completed) return <OnboardingPage onComplete={refreshProfile} />
+  if (path.startsWith('/find-contacts/')) {
+    return <FindContactsPage opportunityId={path.split('/')[2]} onNavigate={navigate} />
+  }
   if (path === '/applications') return <ApplicationsPage onNavigate={navigate} />
   return <DashboardPage onNavigate={navigate} />
 }

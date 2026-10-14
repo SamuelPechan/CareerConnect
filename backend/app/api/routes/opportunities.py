@@ -7,7 +7,7 @@ from sqlalchemy import asc, desc, select
 from sqlalchemy.orm import joinedload
 
 from app.api.deps import CurrentUser, DbSession
-from app.db.models import Application, JobOpportunity, Resume
+from app.db.models import Application, Company, JobOpportunity, Resume
 from app.schemas.opportunity import (
     ApplicationResponse,
     ApplicationStatus,
@@ -71,8 +71,22 @@ def list_opportunities(
 
 @router.post("/opportunities", response_model=OpportunityResponse, status_code=status.HTTP_201_CREATED)
 def create_opportunity(payload: OpportunityCreate, user: CurrentUser, db: DbSession) -> JobOpportunity:
+    company = None
+    if payload.company_id:
+        company = db.scalar(select(Company).where(Company.id == payload.company_id, Company.user_id == user.id))
+        if company is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    else:
+        company = db.scalar(
+            select(Company).where(Company.user_id == user.id, Company.name.ilike(payload.company_name))
+        )
+        if company is None:
+            company = Company(user_id=user.id, name=payload.company_name)
+            db.add(company)
+            db.flush()
     opportunity = JobOpportunity(
         user_id=user.id,
+        company_id=company.id,
         title=payload.title,
         company_name=payload.company_name,
         location=payload.location,
@@ -99,7 +113,14 @@ def update_opportunity(
     opportunity_id: UUID, payload: OpportunityUpdate, user: CurrentUser, db: DbSession
 ) -> JobOpportunity:
     opportunity = get_owned_opportunity(opportunity_id, user.id, db)
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    if "company_id" in changes and changes["company_id"] is not None:
+        company = db.scalar(
+            select(Company).where(Company.id == changes["company_id"], Company.user_id == user.id)
+        )
+        if company is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Company not found")
+    for field, value in changes.items():
         if field == "job_url" and value:
             value = str(value)
         setattr(opportunity, field, value)
