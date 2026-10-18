@@ -15,7 +15,7 @@ database/     Database and migration notes
 
 ## Current implementation
 
-Phases 1–3 established the project foundation, JWT authentication, profiles, onboarding, job opportunities, applications, safe filtering/sorting, status tracking, and dashboard basics. Phase 4 adds user-owned companies and a user-controlled Find Contacts workflow that generates search criteria and external links without scraping or automatic outreach.
+Phases 1–7 established the project foundation, JWT authentication, profiles, onboarding, job opportunities, applications, safe filtering/sorting, status tracking, dashboard basics, user-owned companies, contact discovery, confirmed contacts, application connections, interaction history, follow-up reminders, and reviewed message drafts. Phase 8 expands the dashboard with networking coverage, discovery activity, pipeline distribution, follow-up health, and interview/offer rates.
 
 ### Prerequisites
 
@@ -69,9 +69,32 @@ npm run build
 cd backend
 ruff check .
 pytest
+alembic upgrade head
+alembic check
 ```
 
 The backend commands require Python 3.12+ and installed dependencies.
+
+GitHub Actions runs the same frontend and backend checks on pushes to `main` and pull requests. The backend CI job starts PostgreSQL, applies every Alembic migration, checks for schema drift, runs Ruff, and runs the test suite.
+
+### Production deployment
+
+The repository includes deployment-ready configuration but does not contain cloud credentials or deploy automatically.
+
+Backend deployment:
+
+- `backend/Dockerfile` runs database migrations before starting Uvicorn.
+- `render.yaml` describes a Render web service and PostgreSQL database.
+- Set `APP_ENV=production`, a strong random `JWT_SECRET_KEY`, the managed `DATABASE_URL`, and the deployed frontend URL in `FRONTEND_ORIGINS`.
+- The health check is `GET /api/v1/health`.
+
+Frontend deployment:
+
+- `frontend/vercel.json` configures the Vite build and SPA rewrites.
+- Import the repository into Vercel with `frontend` as the project root.
+- Set `VITE_API_BASE_URL` to the public backend URL plus `/api/v1`, then deploy.
+
+After both services are deployed, verify the health endpoint, register a test account, complete onboarding, create an opportunity, and confirm that Find Contacts, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
 
 ### Authentication and onboarding API
 
@@ -104,6 +127,26 @@ The backend commands require Python 3.12+ and installed dependencies.
 - `POST /api/v1/discovery/opportunities/{id}/find-contacts` — generate a user-reviewed contact search plan
 - `GET /api/v1/discovery/searches/{id}` — retrieve a saved search plan
 - `PATCH /api/v1/discovery/links/{id}` — mark an external search link reviewed or unreviewed
+- `GET /api/v1/contacts` — list confirmed contacts with ownership-safe filters
+- `POST /api/v1/contacts` — save a reviewed contact connected to an opportunity and company
+- `GET /api/v1/contacts/{id}` — view one contact
+- `PATCH /api/v1/contacts/{id}` — update contact details or relationship status
+- `DELETE /api/v1/contacts/{id}` — delete a contact
+- `POST /api/v1/contacts/{contact_id}/applications/{application_id}` — connect a contact to an application
+- `DELETE /api/v1/contacts/{contact_id}/applications/{application_id}` — remove an application connection
+- `GET /api/v1/contacts/{contact_id}/interactions` — list a contact’s interaction history
+- `POST /api/v1/contacts/{contact_id}/interactions` — record an interaction
+- `PATCH /api/v1/interactions/{id}` — update an interaction
+- `DELETE /api/v1/interactions/{id}` — delete an interaction
+- `GET /api/v1/reminders` — list upcoming, completed, or overdue reminders
+- `POST /api/v1/reminders` — create a contact, opportunity, or interaction reminder
+- `PATCH /api/v1/reminders/{id}` — update or complete a reminder
+- `DELETE /api/v1/reminders/{id}` — delete a reminder
+- `POST /api/v1/message-drafts/generate` — assemble a context-aware draft for a saved contact
+- `GET /api/v1/message-drafts` — list message drafts
+- `GET /api/v1/message-drafts/{id}` — view one draft
+- `PATCH /api/v1/message-drafts/{id}` — edit a draft or update its review status
+- `DELETE /api/v1/message-drafts/{id}` — archive data by deleting a draft
 
 All profile and resume endpoints require `Authorization: Bearer <token>`. User records are isolated by the authenticated user ID. Phase 2 stores resume metadata and an optional permitted URL; binary storage and parsing will be added later with explicit user review.
 
@@ -121,14 +164,14 @@ All profile and resume endpoints require `Authorization: Bearer <token>`. User r
 2. Authentication, profiles, and onboarding — complete
 3. Opportunities, applications, and dashboard basics — complete
 4. Companies and Find Contacts workflow — complete
-5. User-controlled contact discovery
-6. Contacts, interactions, and reminders
-7. Reviewed message drafts
-8. Dashboard analytics
-9. Tests, documentation, and CI
+5. User-controlled contact discovery and contact confirmation — complete
+6. Contacts, interactions, and reminders — complete
+7. Reviewed message drafts — complete
+8. Dashboard analytics — complete
+9. Tests, documentation, and CI — complete
 10. Production deployment
 11. Optional browser-extension evaluation
 
 ## Known limitations
 
-Production deployment, external provider integrations, contact persistence, messaging, and analytics are not yet implemented. The optional browser extension will remain separate from the core application.
+Production deployment still requires creating the cloud services and setting their secrets. External provider integrations remain intentionally user-controlled, and the optional browser extension will remain separate from the core application.

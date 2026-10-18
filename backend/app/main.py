@@ -3,9 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.companies import router as companies_router
+from app.api.routes.contacts import router as contacts_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.discovery import router as discovery_router
 from app.api.routes.health import router as health_router
+from app.api.routes.message_drafts import router as message_drafts_router
+from app.api.routes.networking import router as networking_router
 from app.api.routes.opportunities import router as opportunities_router
 from app.api.routes.profile import router as profile_router
 from app.core.config import get_settings
@@ -29,3 +32,6 @@ app.include_router(profile_router, prefix=settings.api_prefix)
 app.include_router(opportunities_router, prefix=settings.api_prefix)
 app.include_router(companies_router, prefix=settings.api_prefix)
 app.include_router(discovery_router, prefix=settings.api_prefix)
+app.include_router(contacts_router, prefix=settings.api_prefix)
+app.include_router(networking_router, prefix=settings.api_prefix)
+app.include_router(message_drafts_router, prefix=settings.api_prefix)

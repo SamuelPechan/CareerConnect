@@ -5,6 +5,8 @@ import AuthPage from './pages/AuthPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import DashboardPage from './pages/DashboardPage'
 import FindContactsPage from './pages/FindContactsPage'
+import NetworkingPage from './pages/NetworkingPage'
+import MessageDraftPage from './pages/MessageDraftPage'
 import OnboardingPage from './pages/OnboardingPage'
 
 function AppContent() {
@@ -27,6 +29,10 @@ function AppContent() {
   if (!profile?.onboarding_completed) return <OnboardingPage onComplete={refreshProfile} />
   if (path.startsWith('/find-contacts/')) {
     return <FindContactsPage opportunityId={path.split('/')[2]} onNavigate={navigate} />
+  }
+  if (path === '/networking') return <NetworkingPage onNavigate={navigate} />
+  if (path.startsWith('/message-drafts/')) {
+    return <MessageDraftPage contactId={path.split('/')[2]} onNavigate={navigate} />
   }
   if (path === '/applications') return <ApplicationsPage onNavigate={navigate} />
   return <DashboardPage onNavigate={navigate} />
