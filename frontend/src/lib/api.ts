@@ -29,6 +29,11 @@ export type AuthResponse = {
   user: User
 }
 
+export type PasswordResetRequestResponse = {
+  message: string
+  reset_token: string | null
+}
+
 export type ProfileUpdate = Partial<Omit<Profile, 'id' | 'user_id' | 'created_at' | 'updated_at'>>
 
 export type ResumeCreate = {
@@ -221,6 +226,16 @@ export const api = {
     request<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) }),
   login: (email: string, password: string) =>
     request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+  requestPasswordReset: (email: string) =>
+    request<PasswordResetRequestResponse>('/auth/password-reset/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (token: string, password: string) =>
+    request<{ message: string }>('/auth/password-reset/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
   currentUser: (token: string) => request<User>('/auth/me', {}, token),
   logout: (token: string) => request<void>('/auth/logout', { method: 'POST' }, token),
   getProfile: (token: string) => request<Profile>('/profile', {}, token),

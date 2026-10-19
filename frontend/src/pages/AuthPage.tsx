@@ -41,6 +41,7 @@ export default function AuthPage({ mode, onNavigate }: AuthPageProps) {
           {(formError || error) && <p className="error-message" role="alert">{formError || error}</p>}
           <button className="primary-button" disabled={isSubmitting}>{isSubmitting ? 'Please wait…' : isRegister ? 'Create account' : 'Log in'}</button>
         </form>
+        {!isRegister && <p className="forgot-copy"><button className="text-button" onClick={() => onNavigate('/forgot-password')}>Forgot your password?</button></p>}
         <p className="switch-copy">
           {isRegister ? 'Already have an account?' : 'New to CareerConnect?'}{' '}
           <button className="text-button" onClick={() => onNavigate(isRegister ? '/login' : '/register')}>

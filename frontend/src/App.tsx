@@ -8,6 +8,8 @@ import FindContactsPage from './pages/FindContactsPage'
 import NetworkingPage from './pages/NetworkingPage'
 import MessageDraftPage from './pages/MessageDraftPage'
 import OnboardingPage from './pages/OnboardingPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function AppContent() {
   const { user, profile, isLoading, refreshProfile } = useAuth()
@@ -25,7 +27,11 @@ function AppContent() {
   }
 
   if (isLoading) return <main className="shell"><p>Loading your workspace…</p></main>
-  if (!user) return <AuthPage mode={path === '/register' ? 'register' : 'login'} onNavigate={navigate} />
+  if (!user) {
+    if (path === '/forgot-password') return <ForgotPasswordPage onNavigate={navigate} />
+    if (path === '/reset-password') return <ResetPasswordPage onNavigate={navigate} />
+    return <AuthPage mode={path === '/register' ? 'register' : 'login'} onNavigate={navigate} />
+  }
   if (!profile?.onboarding_completed) return <OnboardingPage onComplete={refreshProfile} />
   if (path.startsWith('/find-contacts/')) {
     return <FindContactsPage opportunityId={path.split('/')[2]} onNavigate={navigate} />
