@@ -56,6 +56,7 @@ input:focus { outline: 3px solid rgba(54, 136, 107, .2); border-color: #36886b; 
 .error-message { margin: 0; padding: .75rem; border-radius: 8px; color: #9d3027; background: #fff0ee; }
 .success-message { margin: 0; padding: .75rem; border-radius: 8px; color: #23664f; background: #e4f2eb; }
 .form-hint, .label-hint { margin: 0; color: #758981; font-size: .8rem; font-weight: 400; }
+.privacy-note { margin: 0; padding: .85rem 1rem; border: 1px solid #cfe5d8; border-radius: 10px; color: #47675a; background: #f3faf6; line-height: 1.5; }
 .step-label { color: #36886b; font-size: .8rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 fieldset { display: grid; gap: 1rem; margin: .5rem 0; padding: 1rem; border: 1px solid #dce8e2; border-radius: 12px; }
 .dashboard-shell { min-height: 100vh; background: #f4f7f5; color: #17332b; }
@@ -116,6 +117,18 @@ textarea { min-height: 90px; resize: vertical; }
 .empty-state h3 { margin-top: 0; color: #17332b; }
 .dashboard-callout { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-top: 2rem; }
 .dashboard-callout h2 { margin: .5rem 0; color: #17332b; }
+.workspace-home h1 { max-width: 720px; }
+.workflow-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 2rem; }
+.workflow-step { display: flex; gap: .8rem; padding: 1rem; border: 1px solid #dce8e2; border-radius: 14px; background: white; }
+.workflow-step > span { display: grid; place-items: center; flex: 0 0 2rem; width: 2rem; height: 2rem; border-radius: 50%; color: white; background: #23664f; font-weight: 900; }
+.workflow-step strong { color: #17332b; }
+.workflow-step p { margin: .3rem 0 0; color: #60756d; font-size: .9rem; line-height: 1.4; }
+.workspace-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0 2.5rem; }
+.signed-in-note { margin-top: 1.25rem; font-size: .85rem; }
+.quick-start-card { margin-bottom: 2.5rem; }
+.card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin-top: .5rem; }
+.next-action-card { display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-top: 1.25rem; }
+.next-action-card h2 { margin: .5rem 0; color: #17332b; }
 .discovery-page { display: grid; gap: 1.25rem; }
 .discovery-start { max-width: 700px; }
 .contact-confirmation h2 { margin: .5rem 0; color: #17332b; }
@@ -147,6 +160,7 @@ textarea { min-height: 90px; resize: vertical; }
 .discovery-link-card p { margin: 0 0 .5rem; }
 .discovery-link-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .6rem; }
 .discovery-link-actions a { text-decoration: none; white-space: nowrap; }
-@media (max-width: 700px) { .form-grid, .dashboard-grid, .analytics-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .form-grid, .dashboard-grid, .analytics-grid, .workflow-steps, .workspace-summary { grid-template-columns: 1fr; } }
 @media (max-width: 800px) { .page-heading, .dashboard-callout { align-items: stretch; flex-direction: column; } .applications-layout, .analytics-columns { grid-template-columns: 1fr; } .detail-panel { position: static; } .filter-bar { grid-template-columns: 1fr; } .criteria-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .discovery-link-card { align-items: stretch; flex-direction: column; } .discovery-link-actions { justify-content: flex-start; } }
+@media (max-width: 800px) { .next-action-card { align-items: stretch; flex-direction: column; } }
 @media (max-width: 500px) { .criteria-grid { grid-template-columns: 1fr; } }

@@ -1,6 +1,6 @@
 # CareerConnect
 
-CareerConnect is a networking-first job-search CRM for college students and early-career professionals. It connects job opportunities to professional contacts, conversations, reminders, and user-reviewed message drafts.
+CareerConnect is a safety-first networking workspace for college students and early-career professionals. Its baseline workflow is: save a job, review public search angles for relevant people, save only people you are permitted to record, prepare a message draft, and track the follow-up.
 
 CareerConnect is not a job board, automatic application bot, or mass-outreach tool. Contact discovery is user-controlled: the application generates search criteria and external links, and the user reviews and confirms contacts before saving them.
 
@@ -12,6 +12,19 @@ backend/      FastAPI REST API and SQLAlchemy database layer
 database/     Database and migration notes
 .github/      CI workflows
 ```
+
+## Baseline release
+
+The baseline intentionally keeps the user in control. It does not log in to LinkedIn or another platform, scrape private data, send messages, or make recommendations from sensitive traits. External search links are opened by the user, and every saved person and message draft requires user review.
+
+The public workflow is:
+
+1. Create an account and add a small profile context.
+2. Save a job with a title, company, and optional public posting URL.
+3. Review the suggested relationship angles and external search links.
+4. Add a person only after reviewing public information and confirming that it may be stored.
+5. Generate, edit, approve, copy, and manually send a message.
+6. Record the interaction and schedule a follow-up.
 
 ## Current implementation
 
@@ -86,6 +99,7 @@ Backend deployment:
 - `backend/Dockerfile` runs database migrations before starting Uvicorn.
 - `render.yaml` describes a Render web service and PostgreSQL database.
 - Set `APP_ENV=production`, a strong random `JWT_SECRET_KEY`, the managed `DATABASE_URL`, and the deployed frontend URL in `FRONTEND_ORIGINS`.
+- Use a production email provider before advertising password-reset support; local development intentionally returns reset tokens, while production does not.
 - The health check is `GET /api/v1/health`.
 
 Frontend deployment:
@@ -94,7 +108,7 @@ Frontend deployment:
 - Import the repository into Vercel with `frontend` as the project root.
 - Set `VITE_API_BASE_URL` to the public backend URL plus `/api/v1`, then deploy.
 
-After both services are deployed, verify the health endpoint, register a test account, complete onboarding, create an opportunity, and confirm that Find Contacts, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
+After both services are deployed, verify the health endpoint, register a test account, complete onboarding, create a job, and confirm that Find Contacts, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
 
 ### Authentication and onboarding API
 
