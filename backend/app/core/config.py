@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     def validate_production_secrets(self) -> "Settings":
         if self.app_env == "production" and self.jwt_secret_key == "development-only-secret":
             raise ValueError("JWT_SECRET_KEY must be changed before running in production")
+        if self.database_url.startswith("postgres://"):
+            self.database_url = "postgresql+psycopg://" + self.database_url.removeprefix("postgres://")
+        elif self.database_url.startswith("postgresql://"):
+            self.database_url = "postgresql+psycopg://" + self.database_url.removeprefix("postgresql://")
         return self
 
     @property
