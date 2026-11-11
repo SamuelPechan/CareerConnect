@@ -107,7 +107,7 @@ Frontend deployment:
 
 - `frontend/vercel.json` configures the Vite build and SPA rewrites.
 - Import the repository into Vercel with `frontend` as the project root.
-- Set `VITE_API_BASE_URL` to the public backend URL plus `/api/v1`, then deploy.
+- Set `VITE_PUBLIC_API_BASE_URL` to the public backend URL plus `/api/v1`, then deploy. The frontend API base URL is public configuration, not a secret.
 
 After both services are deployed, verify the health endpoint, register a test account, complete onboarding, create a job, and confirm that Find Contacts, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
 
