@@ -9,6 +9,8 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
+from app.core.config import Settings
+
 MAX_RESPONSE_BYTES = 2_000_000
 MAX_REDIRECTS = 3
 REQUEST_TIMEOUT_SECONDS = 8.0
@@ -201,4 +203,71 @@ def import_job_from_url(job_url: str) -> ImportedJob:
         description=description[:20000] if description else None,
         source_platform=_source_platform(urlparse(current_url).hostname or "job site"),
         job_url=current_url,
+    )
+
+
+def import_job_with_ai(job_url: str, settings: Settings) -> ImportedJob:
+    if not settings.openai_api_key:
+        raise RuntimeError("AI job import is not configured. Add OPENAI_API_KEY to the backend first.")
+    response_schema = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "title": {"type": "string"},
+            "company_name": {"type": "string"},
+            "location": {"type": "string"},
+            "description": {"type": "string"},
+        },
+        "required": ["title", "company_name", "location", "description"],
+    }
+    request_body = {
+        "model": settings.openai_model,
+        "tools": [{"type": "web_search"}],
+        "tool_choice": "required",
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": "job_posting_metadata",
+                "strict": True,
+                "schema": response_schema,
+            }
+        },
+        "input": (
+            "Read this public job posting URL using public web sources and extract its metadata. "
+            "Do not log in, use cookies, or invent missing values. If the page cannot be verified, return empty "
+            f"strings for the unknown fields. URL: {job_url}"
+        ),
+    }
+    try:
+        with httpx.Client(timeout=35.0, trust_env=False) as client:
+            response = client.post(
+                "https://api.openai.com/v1/responses",
+                headers={
+                    "Authorization": f"Bearer {settings.openai_api_key}",
+                    "Content-Type": "application/json",
+                },
+                json=request_body,
+            )
+    except httpx.HTTPError as exc:
+        raise RuntimeError("The AI job importer could not be reached") from exc
+    if response.status_code >= 400:
+        raise RuntimeError("The AI job importer rejected the request")
+    try:
+        payload = response.json()
+        output_text = payload.get("output_text", "")
+        parsed = json.loads(output_text)
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise RuntimeError("The AI job importer returned an invalid result") from exc
+    title = _clean_text(parsed.get("title"))
+    company = _clean_text(parsed.get("company_name"))
+    if not title or not company:
+        raise RuntimeError("The AI job importer could not verify the job title and company")
+    hostname = urlparse(job_url).hostname or "job site"
+    return ImportedJob(
+        title=title[:250],
+        company_name=company[:250],
+        location=_clean_text(parsed.get("location"))[:250] or None,
+        description=_clean_text(parsed.get("description"))[:20000] or None,
+        source_platform=_source_platform(hostname),
+        job_url=job_url,
     )

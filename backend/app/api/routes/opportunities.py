@@ -7,6 +7,7 @@ from sqlalchemy import asc, desc, select
 from sqlalchemy.orm import joinedload
 
 from app.api.deps import CurrentUser, DbSession
+from app.core.config import get_settings
 from app.db.models import Application, Company, JobOpportunity, Resume
 from app.schemas.opportunity import (
     ApplicationResponse,
@@ -21,7 +22,7 @@ from app.schemas.opportunity import (
     SortField,
     SortOrder,
 )
-from app.services.job_import import import_job_from_url
+from app.services.job_import import import_job_from_url, import_job_with_ai
 
 router = APIRouter(tags=["opportunities and applications"])
 
@@ -55,7 +56,22 @@ def import_opportunity_preview(
     try:
         imported = import_job_from_url(str(payload.job_url))
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        settings = get_settings()
+        if not settings.openai_api_key:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=(
+                    f"{exc} LinkedIn may block direct import. Add OPENAI_API_KEY to enable the public-web fallback, "
+                    "or use a public company/ATS job URL."
+                ),
+            ) from exc
+        try:
+            imported = import_job_with_ai(str(payload.job_url), settings)
+        except RuntimeError as ai_exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"{exc} The public-web fallback could not verify this posting: {ai_exc}",
+            ) from ai_exc
     return OpportunityImportPreview(
         title=imported.title,
         company_name=imported.company_name,

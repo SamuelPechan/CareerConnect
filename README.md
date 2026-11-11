@@ -102,6 +102,7 @@ Backend deployment:
 - Set `APP_ENV=production`, a strong random `JWT_SECRET_KEY`, the managed `DATABASE_URL`, and the deployed frontend URL in `FRONTEND_ORIGINS`.
 - Use a production email provider before advertising password-reset support; local development intentionally returns reset tokens, while production does not.
 - `OPENAI_API_KEY` is optional. When configured, it stays on the backend and enables the recommendation search. `OPENAI_MODEL` defaults to `gpt-6-astra` and can be overridden. Users must explicitly consent before a recommendation request; the backend sends only job details and limited professional context, never passwords, email addresses, resumes, private notes, or sensitive traits.
+- Some job sites, especially LinkedIn, block unauthenticated server-side page reads. If direct metadata import fails and `OPENAI_API_KEY` is configured, CareerConnect can use a public-web fallback to verify the posting without using cookies or logging in.
 - The health check is `GET /api/v1/health`.
 
 Frontend deployment:
