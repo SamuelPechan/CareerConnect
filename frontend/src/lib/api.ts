@@ -87,6 +87,32 @@ export type OpportunityCreate = {
   status?: 'saved' | 'planning_to_apply'
 }
 
+export type OpportunityImportPreview = {
+  title: string
+  company_name: string
+  location: string | null
+  description: string | null
+  source_platform: string
+  job_url: string
+}
+
+export type Recommendation = {
+  name: string
+  job_title: string
+  company_name: string
+  profile_url: string
+  source_url: string
+  source_title: string
+  connection_reason: string
+  evidence: string
+  confidence: 'high' | 'medium' | 'low'
+}
+
+export type RecommendationResponse = {
+  recommendations: Recommendation[]
+  provider_note: string
+}
+
 export type DiscoveryLink = {
   id: string
   search_id: string
@@ -248,6 +274,12 @@ export const api = {
   getDashboardSummary: (token: string) => request<DashboardSummary>('/dashboard/summary', {}, token),
   listOpportunities: (token: string, params: URLSearchParams = new URLSearchParams()) =>
     request<Opportunity[]>(`/opportunities?${params.toString()}`, {}, token),
+  getOpportunity: (token: string, id: string) => request<Opportunity>(`/opportunities/${id}`, {}, token),
+  previewOpportunityImport: (token: string, job_url: string) =>
+    request<OpportunityImportPreview>('/opportunities/import-preview', {
+      method: 'POST',
+      body: JSON.stringify({ job_url }),
+    }, token),
   createOpportunity: (token: string, opportunity: OpportunityCreate) =>
     request<Opportunity>('/opportunities', { method: 'POST', body: JSON.stringify(opportunity) }, token),
   updateOpportunity: (token: string, id: string, opportunity: Partial<OpportunityCreate>) =>
@@ -262,6 +294,11 @@ export const api = {
     request<Application>(`/applications/${id}`, { method: 'PATCH', body: JSON.stringify(application) }, token),
   findContacts: (token: string, opportunityId: string) =>
     request<DiscoverySearch>(`/discovery/opportunities/${opportunityId}/find-contacts`, { method: 'POST' }, token),
+  recommendConnections: (token: string, opportunityId: string) =>
+    request<RecommendationResponse>('/assistant/recommendations', {
+      method: 'POST',
+      body: JSON.stringify({ opportunity_id: opportunityId, consent: true }),
+    }, token),
   reviewDiscoveryLink: (token: string, linkId: string, reviewed: boolean) =>
     request<DiscoveryLink>(`/discovery/links/${linkId}`, { method: 'PATCH', body: JSON.stringify({ reviewed }) }, token),
   createContact: (token: string, contact: ContactCreate) =>

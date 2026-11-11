@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext'
 import AuthPage from './pages/AuthPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import DashboardPage from './pages/DashboardPage'
-import FindContactsPage from './pages/FindContactsPage'
+import RecommendationsPage from './pages/RecommendationsPage'
 import NetworkingPage from './pages/NetworkingPage'
 import MessageDraftPage from './pages/MessageDraftPage'
 import OnboardingPage from './pages/OnboardingPage'
@@ -33,8 +33,8 @@ function AppContent() {
     return <AuthPage mode={path === '/register' ? 'register' : 'login'} onNavigate={navigate} />
   }
   if (!profile?.onboarding_completed) return <OnboardingPage onComplete={refreshProfile} />
-  if (path.startsWith('/find-contacts/')) {
-    return <FindContactsPage opportunityId={path.split('/')[2]} onNavigate={navigate} />
+  if (path.startsWith('/recommendations/') || path.startsWith('/find-contacts/')) {
+    return <RecommendationsPage opportunityId={path.split('/')[2]} onNavigate={navigate} />
   }
   if (path === '/networking') return <NetworkingPage onNavigate={navigate} />
   if (path.startsWith('/message-drafts/')) {

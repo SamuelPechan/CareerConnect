@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.assistant import router as assistant_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.companies import router as companies_router
 from app.api.routes.contacts import router as contacts_router
@@ -39,6 +40,7 @@ async def add_security_headers(request, call_next):
 
 app.include_router(health_router, prefix=settings.api_prefix)
 app.include_router(auth_router, prefix=settings.api_prefix)
+app.include_router(assistant_router, prefix=settings.api_prefix)
 app.include_router(dashboard_router, prefix=settings.api_prefix)
 app.include_router(profile_router, prefix=settings.api_prefix)
 app.include_router(opportunities_router, prefix=settings.api_prefix)

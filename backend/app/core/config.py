@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     frontend_origins: str = "http://localhost:5173,http://localhost:5174"
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-6-astra"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

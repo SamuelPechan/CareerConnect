@@ -33,6 +33,19 @@ class OpportunityCreate(BaseModel):
     status: OpportunityStatus = "saved"
 
 
+class OpportunityImportRequest(BaseModel):
+    job_url: AnyHttpUrl
+
+
+class OpportunityImportPreview(BaseModel):
+    title: str
+    company_name: str
+    location: str | None
+    description: str | None
+    source_platform: str
+    job_url: AnyHttpUrl
+
+
 class OpportunityUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=250)
     company_name: str | None = Field(default=None, min_length=1, max_length=250)

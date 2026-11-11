@@ -13,12 +13,15 @@ from app.schemas.opportunity import (
     ApplicationStatus,
     ApplicationUpdate,
     OpportunityCreate,
+    OpportunityImportPreview,
+    OpportunityImportRequest,
     OpportunityResponse,
     OpportunityStatus,
     OpportunityUpdate,
     SortField,
     SortOrder,
 )
+from app.services.job_import import import_job_from_url
 
 router = APIRouter(tags=["opportunities and applications"])
 
@@ -43,6 +46,24 @@ def get_owned_application(application_id: UUID, user_id: UUID, db: DbSession) ->
     if application is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
     return application
+
+
+@router.post("/opportunities/import-preview", response_model=OpportunityImportPreview)
+def import_opportunity_preview(
+    payload: OpportunityImportRequest, user: CurrentUser  # noqa: ARG001
+) -> OpportunityImportPreview:
+    try:
+        imported = import_job_from_url(str(payload.job_url))
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+    return OpportunityImportPreview(
+        title=imported.title,
+        company_name=imported.company_name,
+        location=imported.location,
+        description=imported.description,
+        source_platform=imported.source_platform,
+        job_url=imported.job_url,
+    )
 
 
 @router.get("/opportunities", response_model=list[OpportunityResponse])

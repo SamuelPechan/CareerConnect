@@ -1,8 +1,8 @@
 # CareerConnect
 
-CareerConnect is a safety-first networking workspace for college students and early-career professionals. Its baseline workflow is: save a job, review public search angles for relevant people, save only people you are permitted to record, prepare a message draft, and track the follow-up.
+CareerConnect is a safety-first networking workspace for college students and early-career professionals. Its current workflow is: import a public job posting, request a short public-web recommendation list, review the evidence, save a selected person, prepare a message draft, and track the follow-up.
 
-CareerConnect is not a job board, automatic application bot, or mass-outreach tool. Contact discovery is user-controlled: the application generates search criteria and external links, and the user reviews and confirms contacts before saving them.
+CareerConnect is not a job board, automatic application bot, or mass-outreach tool. Recommendations are limited to public professional sources and are user-controlled: the application returns evidence links, and the user reviews and confirms a person before saving them.
 
 ## Repository structure
 
@@ -19,16 +19,16 @@ The baseline intentionally keeps the user in control. It does not log in to Link
 
 The public workflow is:
 
-1. Create an account and add a small profile context.
-2. Save a job with a title, company, and optional public posting URL.
-3. Review the suggested relationship angles and external search links.
-4. Add a person only after reviewing public information and confirming that it may be stored.
+1. Create an account and add a small professional profile context.
+2. Paste a public job posting URL and review the imported metadata.
+3. If the AI provider is configured, approve a public-web recommendation search.
+4. Review each evidence link and save only a person you choose to contact.
 5. Generate, edit, approve, copy, and manually send a message.
 6. Record the interaction and schedule a follow-up.
 
 ## Current implementation
 
-Phases 1–7 established the project foundation, JWT authentication, profiles, onboarding, job opportunities, applications, safe filtering/sorting, status tracking, dashboard basics, user-owned companies, contact discovery, confirmed contacts, application connections, interaction history, follow-up reminders, and reviewed message drafts. Phase 8 expands the dashboard with networking coverage, discovery activity, pipeline distribution, follow-up health, and interview/offer rates.
+Phases 1–8 established the project foundation, JWT authentication, profiles, onboarding, job opportunities, applications, safe filtering/sorting, status tracking, dashboard basics, user-owned companies, contact discovery, confirmed contacts, application connections, interaction history, follow-up reminders, reviewed message drafts, and networking analytics. The current assistant phase adds public job metadata import and optional AI-assisted public-web recommendations.
 
 ### Prerequisites
 
@@ -101,6 +101,7 @@ Backend deployment:
 - The Blueprint uses Render's Free plans for the class demo. The free web service sleeps after inactivity, and the free Postgres database is limited to 1 GB and expires after 30 days; do not use this setup for sensitive or long-term production data.
 - Set `APP_ENV=production`, a strong random `JWT_SECRET_KEY`, the managed `DATABASE_URL`, and the deployed frontend URL in `FRONTEND_ORIGINS`.
 - Use a production email provider before advertising password-reset support; local development intentionally returns reset tokens, while production does not.
+- `OPENAI_API_KEY` is optional. When configured, it stays on the backend and enables the recommendation search. `OPENAI_MODEL` defaults to `gpt-6-astra` and can be overridden. Users must explicitly consent before a recommendation request; the backend sends only job details and limited professional context, never passwords, email addresses, resumes, private notes, or sensitive traits.
 - The health check is `GET /api/v1/health`.
 
 Frontend deployment:
@@ -109,7 +110,7 @@ Frontend deployment:
 - Import the repository into Vercel with `frontend` as the project root.
 - Set `VITE_PUBLIC_API_BASE_URL` to the public backend URL plus `/api/v1`, then deploy. The frontend API base URL is public configuration, not a secret.
 
-After both services are deployed, verify the health endpoint, register a test account, complete onboarding, create a job, and confirm that Find Contacts, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
+After both services are deployed, verify the health endpoint, register a test account, complete onboarding, import a public job URL, and confirm that recommendations, Networking, reminders, and message drafts can reach the production API. Never commit `.env`, production secrets, private resumes, or database credentials.
 
 ### Authentication and onboarding API
 
