@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+from threading import Lock
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
@@ -16,6 +18,23 @@ from app.services.recommendations import find_recommendations
 
 router = APIRouter(prefix="/assistant", tags=["career assistant"])
 http_url = TypeAdapter(AnyHttpUrl)
+MAX_RECOMMENDATION_REQUESTS_PER_DAY = 3
+_request_lock = Lock()
+_request_history: dict[UUID, list[datetime]] = {}
+
+
+def enforce_recommendation_limit(user_id: UUID) -> None:
+    now = datetime.now(UTC)
+    cutoff = now - timedelta(days=1)
+    with _request_lock:
+        recent = [timestamp for timestamp in _request_history.get(user_id, []) if timestamp > cutoff]
+        if len(recent) >= MAX_RECOMMENDATION_REQUESTS_PER_DAY:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Recommendation limit reached for today. Try again tomorrow.",
+            )
+        recent.append(now)
+        _request_history[user_id] = recent
 
 
 def owned_opportunity(opportunity_id: UUID, user_id: UUID, db: DbSession) -> JobOpportunity:
@@ -36,6 +55,7 @@ def recommend_connections(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Confirm the public-web research consent before requesting recommendations",
         )
+    enforce_recommendation_limit(user.id)
     opportunity = owned_opportunity(payload.opportunity_id, user.id, db)
     try:
         raw_recommendations = find_recommendations(opportunity, user.profile, get_settings())
