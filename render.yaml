@@ -1,6 +1,7 @@
 services:
   - type: web
     name: careerconnect-api
+    plan: free
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
@@ -19,5 +20,6 @@ services:
 
 databases:
   - name: careerconnect-db
+    plan: free
     databaseName: careerconnect
     user: careerconnect

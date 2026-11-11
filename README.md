@@ -98,6 +98,7 @@ Backend deployment:
 
 - `backend/Dockerfile` runs database migrations before starting Uvicorn.
 - `render.yaml` describes a Render web service and PostgreSQL database.
+- The Blueprint uses Render's Free plans for the class demo. The free web service sleeps after inactivity, and the free Postgres database is limited to 1 GB and expires after 30 days; do not use this setup for sensitive or long-term production data.
 - Set `APP_ENV=production`, a strong random `JWT_SECRET_KEY`, the managed `DATABASE_URL`, and the deployed frontend URL in `FRONTEND_ORIGINS`.
 - Use a production email provider before advertising password-reset support; local development intentionally returns reset tokens, while production does not.
 - The health check is `GET /api/v1/health`.
